@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql
+    container_name: tora-mysql-container2
+    env_file:
+      - .env
+    ports:
+      - '3307:3306'
+
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: nest-template
+  #   depends_on:
+  #     - mysql
+  #   ports:
+  #     - '5000:5000'
+  #   volumes:
+  #     - .:/app
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - PORT=${PORT}
+  #     - NODE_ENV=${NODE_ENV}
