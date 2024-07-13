@@ -13,6 +13,8 @@ import { join } from 'path';
 import { APP_GUARD } from '@nestjs/core';
 import { JWTAuthGuard } from './auth/guards/jwt.guard';
 import { AwsModule } from './common/aws/aws.module';
+import { EmailModule } from './common/email/email.module';
+import resendConfig from './config/resend.config';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { AwsModule } from './common/aws/aws.module';
       isGlobal: true,
       envFilePath: '.env',
       cache: true,
-      load: [databaseConfig, appConfig, authConfig, awsConfig],
+      load: [databaseConfig, appConfig, authConfig, awsConfig, resendConfig],
     }),
 
     // 2- Database
@@ -41,6 +43,7 @@ import { AwsModule } from './common/aws/aws.module';
     UsersModule,
 
     AwsModule,
+    EmailModule,
   ],
   controllers: [],
   providers: [

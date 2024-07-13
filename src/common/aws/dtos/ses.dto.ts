@@ -1,4 +1,5 @@
 import {
+  ArrayMaxSize,
   ArrayNotEmpty,
   IsArray,
   IsEmail,
@@ -28,8 +29,7 @@ export class CreateTemplateDTO {
   templateSubject: string;
 
   @IsString()
-  @IsString({})
-  // @IsEnum(EmailTemplateEnum) // for now we gonna customize it to only those 3 email templates
+  @IsEnum(EmailTemplateEnum)
   templateName: keyof typeof EmailTemplateEnum; // make it string
 }
 
@@ -37,31 +37,18 @@ export class UpdateTemplateDTO extends CreateTemplateDTO {}
 
 export class SendSESEmailDTO {
   @IsEnum(EmailTemplateEnum)
-  templateType: EmailTemplateEnum;
-
-  @IsString()
-  @IsNotEmpty()
-  templateName: keyof typeof EmailTemplateEnum; // The name of an existing template in Amazon SES.
+  @IsOptional()
+  templateType: keyof typeof EmailTemplateEnum; // The name of an existing template in Amazon SES.
 
   // @IsUrl()
   @IsString()
   @IsNotEmpty()
-  link: string; // reset/verify link u send with the email  >> here will be otp
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmptyObject()
-  templateData?: string;
-
-  @IsEmail()
-  @IsString()
-  @IsNotEmpty()
-  sender: string;
+  linkOrOtp: string; // reset/verify link u send with the email  >> here will be otp
 
   @IsNotEmpty()
-  @IsEmail(null, { each: true })
+  @IsEmail({}, { each: true })
   @IsArray()
-  @MaxLength(50) // reciepients can't exceed 50 at a time
+  @ArrayMaxSize(50) // reciepients can't exceed 50 at a time
   @ArrayNotEmpty()
   ToAddresses: string[];
 
@@ -70,6 +57,12 @@ export class SendSESEmailDTO {
   @IsArray()
   cc?: string[];
 
+  // @IsString()
+  // url: string;
+}
+
+export class DeleteTemplateDTO {
   @IsString()
-  url: string;
+  @IsNotEmpty()
+  templateName: keyof typeof EmailTemplateEnum;
 }

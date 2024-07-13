@@ -55,21 +55,19 @@ export class AwsSesService {
 
   async send(SendSESEmailDTO: SendSESEmailDTO): Promise<any> {
     // const  email_template = getTemplate({template:SendSESEmailDTO.templateType,url:SendSESEmailDTO.url})
-
     // 1- define command
     const emailParams = JSON.stringify({
-      url: SendSESEmailDTO.link,
+      url: SendSESEmailDTO.linkOrOtp,
       userEmail: SendSESEmailDTO.ToAddresses[0],
     });
-    // console.log({ emailParams });
     const command: SendTemplatedEmailCommand = new SendTemplatedEmailCommand({
-      Template: SendSESEmailDTO.templateName, // this gonna define the template from ses
+      Template: SendSESEmailDTO.templateType, // this gonna define the template from ses
       Destination: {
         ToAddresses: SendSESEmailDTO.ToAddresses,
         BccAddresses: [],
         CcAddresses: [],
       },
-      Source: SendSESEmailDTO.sender,
+      Source: this.configService.get('aws.ses_from_mail'), // SendSESEmailDTO.sender,
       TemplateData: emailParams, // Optional data to pass to the template
       ReplyToAddresses: [],
     });
@@ -87,7 +85,7 @@ export class AwsSesService {
       });
     } catch (error) {
       console.error({ error });
-      throw new BadRequestException('Failed to send Email ');
+      throw new BadRequestException(error?.message || "Couldn't send email");
     }
   }
 
@@ -199,7 +197,7 @@ export class AwsSesService {
   async deleteTemplate({
     name,
   }: {
-    name: keyof typeof EmailTemplateEnum;
+    name: string; // keyof typeof EmailTemplateEnum;
   }): Promise<DeleteTemplateCommandOutput> {
     const command: DeleteTemplateCommand = new DeleteTemplateCommand({
       TemplateName: name,
@@ -220,18 +218,18 @@ export class AwsSesService {
   async sendBulk<T>(SendSESEmailDTO: SendSESEmailDTO) {
     const command: SendBulkTemplatedEmailCommand =
       new SendBulkTemplatedEmailCommand({
-        Template: SendSESEmailDTO.templateName,
+        Template: SendSESEmailDTO.templateType,
         Destinations: SendSESEmailDTO.ToAddresses.map((e) => ({
           Destination: {
             ToAddresses: [e],
             BccAddresses: [],
             CcAddresses: [],
           },
-          ReplacementTemplateData: JSON.stringify(
-            SendSESEmailDTO.templateData ?? '',
-          ),
+          // ReplacementTemplateData: JSON.stringify(
+          //   SendSESEmailDTO.templateData ?? '',
+          // ),
         })),
-        Source: SendSESEmailDTO.sender,
+        Source: this.configService.get('aws.ses_from_mail'), //SendSESEmailDTO.sender,
         ReplyToAddresses: [],
       });
 

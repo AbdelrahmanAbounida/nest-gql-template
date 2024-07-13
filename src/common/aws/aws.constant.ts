@@ -1,4 +1,4 @@
 export enum EmailTemplateEnum {
-  VERIFY = 'verify',
-  RESET = 'reset',
+  VERIFY = 'verifyEmail',
+  RESET = 'forgetPassword',
 }

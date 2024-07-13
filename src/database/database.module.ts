@@ -16,6 +16,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         autoLoadEntities: true, // no need to add each entity we create here
         synchronize: configService.getOrThrow('database.synchronize'), // this gonna do migration automatically
         // entities: [User],
+        //
       }),
     }),
   ],

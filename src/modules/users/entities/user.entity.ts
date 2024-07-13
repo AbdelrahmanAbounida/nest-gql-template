@@ -1,7 +1,8 @@
 import { ObjectType, Field, Int, GraphQLISODateTime } from '@nestjs/graphql';
+import { Otp } from 'src/auth/entities/otp.entity';
 import { UserRoleEnum } from 'src/common/enums/role.enum';
 import { AbstractEnttiy } from 'src/database/abstract.entity';
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 
 @ObjectType()
 @Entity()
@@ -30,5 +31,7 @@ export class User extends AbstractEnttiy<User> {
   @Field(() => UserRoleEnum, { defaultValue: UserRoleEnum.USER })
   role: UserRoleEnum;
 
-  // others
+  @Field(() => [Otp], { nullable: true })
+  @OneToMany(() => Otp, (otp) => otp.user)
+  otps: Otp[];
 }

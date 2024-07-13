@@ -6,6 +6,8 @@ import { UsersModule } from 'src/modules/users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Otp } from './entities/otp.entity';
 
 @Module({
   controllers: [AuthController],
@@ -23,6 +25,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         },
       }),
     }),
+    TypeOrmModule.forFeature([Otp]),
   ],
 })
 export class AuthModule {}

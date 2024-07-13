@@ -24,6 +24,7 @@ export class JWTAuthGuard extends AuthGuard(['myjwt']) {
       context.getHandler(),
       context.getClass(),
     ]);
+
     if (isPublic) return true;
 
     // handle authorization
