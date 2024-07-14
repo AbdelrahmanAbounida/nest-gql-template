@@ -12,6 +12,7 @@ export class ResendService {
   }
 
   async sendVerificationEmail(resendEmailDto: ResendEmailDto) {
+    console.log(this.configService.get('resend.from'));
     const { data, error } = await this.resendClient.emails.send({
       from: this.configService.get('resend.from'),
       to: resendEmailDto.ToAddresses,

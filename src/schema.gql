@@ -9,6 +9,7 @@ type Otp {
   name: String
   email: String
   value: Float
+  expirationDate: DateTime
   user: User
 }
 
@@ -58,4 +59,5 @@ input UpdateUserInput {
   password: String
   role: UserRole
   id: Int!
+  emailVerified: DateTime
 }

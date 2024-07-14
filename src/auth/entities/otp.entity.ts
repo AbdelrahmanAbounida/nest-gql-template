@@ -18,6 +18,10 @@ export class Otp extends AbstractEnttiy<Otp> {
   @Field(() => Number, { nullable: true })
   value: number;
 
+  @Column({ type: 'timestamp', nullable: true })
+  @Field({ nullable: true })
+  expirationDate: Date;
+
   @ManyToOne(() => User, (user) => user.otps)
   @Field(() => User, { nullable: true })
   user: User;

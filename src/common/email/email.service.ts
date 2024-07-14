@@ -19,16 +19,17 @@ export class EmailService {
     });
   }
 
-  async sendResendEmailVerification(
-    to: string,
-    linkOrOtp: string,
-    url: string,
-  ) {
+  async sendResendEmailVerification(to: string, linkOrOtp: string) {
     return this.resendService.sendVerificationEmail({
       ToAddresses: [to],
       linkOrOtp: linkOrOtp,
     });
   }
 
-  // send password reset OTP Methods
+  async sendResendResetPasswordEmail(to: string, linkOrOtp: string) {
+    return this.resendService.sendResetEmail({
+      ToAddresses: [to],
+      linkOrOtp: linkOrOtp,
+    });
+  }
 }

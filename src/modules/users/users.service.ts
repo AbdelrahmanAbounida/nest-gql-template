@@ -39,18 +39,22 @@ export class UsersService {
     return this.userRepository.findOneBy({ email });
   }
 
-  async update(id: number, updateUserInput: UpdateUserInput) {
+  async update(updateUserInput: UpdateUserInput) {
     // check if user exists
-    const user = await this.findById(id);
+    const user = await this.findById(updateUserInput.id);
     if (!user) {
       throw new Error('User not found');
     }
 
     // const updatedUser = Object.assign(user, updateUserInput);
     await this.entityManager.transaction(async (transactionalEntityManager) => {
-      await transactionalEntityManager.update(User, id, updateUserInput);
+      await transactionalEntityManager.update(
+        User,
+        updateUserInput.id,
+        updateUserInput,
+      );
     });
-    return;
+    return this.findById(updateUserInput.id);
   }
 
   async remove(id: number) {

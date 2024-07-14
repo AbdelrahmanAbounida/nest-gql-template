@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  NotAcceptableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from 'src/modules/users/users.service';
@@ -11,6 +12,11 @@ import * as bcrypt from 'bcrypt';
 import { User } from 'src/modules/users/entities/user.entity';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Otp } from './entities/otp.entity';
+import { Repository, EntityManager } from 'typeorm';
+import { OtpService } from './otp.service';
+import { UpdateUserInput } from 'src/modules/users/dto/update-user.input';
 
 // required functions for handling authentication for both web and mobile
 @Injectable()
@@ -19,6 +25,7 @@ export class AuthService {
     private userService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private otpService: OtpService,
   ) {}
 
   async validateUser({ email, password }: LoginDto) {
@@ -37,6 +44,24 @@ export class AuthService {
   async hashPassword(password: string) {
     const salt = await bcrypt.genSalt(10);
     return bcrypt.hash(password, salt);
+  }
+
+  async resetPassword({
+    email,
+    newPassword,
+  }: {
+    email: string;
+    newPassword: string;
+  }) {
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    const hashedPassword = await this.hashPassword(newPassword);
+    return this.userService.update({
+      password: hashedPassword,
+      id: user.id,
+    });
   }
 
   async createTokens(
@@ -135,13 +160,22 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
+
+    if (!user.emailVerified) {
+      throw new NotAcceptableException('Email not verified');
+    }
+
     if (isWeb) {
       return this.createTokens(user, res, isWeb);
     }
     return this.createTokens(user);
   }
 
-  async register(data: RegisterDto, res?: Response, isWeb: boolean = false) {
+  async register(
+    data: RegisterDto,
+    res?: Response,
+    isWeb: boolean = false,
+  ): Promise<{ otp: Otp; user: User }> {
     if (isWeb && !res) {
       throw new Error('Response object is required');
     }
@@ -160,10 +194,20 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    if (isWeb) {
-      return this.createTokens(user, res, isWeb);
-    }
-    return this.createTokens(user);
+    // create otp
+    const otp = await this.otpService.createOTP(user);
+
+    return { otp, user };
+
+    // we wont creae tokens here because we want the user to verify their email first
+    // if (isWeb) {
+    //   return this.createTokens(user, res, isWeb);
+    // }
+    // return this.createTokens(user);
+  }
+
+  async updateUserEmail(updateUserInput: UpdateUserInput) {
+    return this.userService.update(updateUserInput);
   }
 
   async logout(res: Response, isWeb) {

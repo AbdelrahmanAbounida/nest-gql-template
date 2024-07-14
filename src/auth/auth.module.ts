@@ -8,13 +8,19 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Otp } from './entities/otp.entity';
+import { OtpService } from './otp.service';
+import { ResendModule } from 'src/common/resend/resend.module';
+import { AwsModule } from 'src/common/aws/aws.module';
+import { EmailService } from 'src/common/email/email.service';
+import { EmailModule } from 'src/common/email/email.module';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, JWTStrategy],
+  providers: [AuthService, OtpService, JWTStrategy],
   imports: [
     UsersModule,
     PassportModule,
+    EmailModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       imports: [ConfigModule],
